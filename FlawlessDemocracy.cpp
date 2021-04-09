@@ -9,15 +9,17 @@ constexpr int grid_height{ 200 };
 
 constexpr int cell_width{ 4 };
 constexpr int cell_height{ 4 };
-constexpr int cell_border{ 1 };
 
 int random(const int max) {
-    return rand() % (max - 0) + 0 + 1;
+    return rand() % max;
 }
 
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(grid_height * cell_height, grid_width * cell_width), "Flawless Democracy", sf::Style::Titlebar | sf::Style::Close);
+    sf::RenderTexture texture;
+    texture.create(grid_height * cell_height, grid_width * cell_width);
+
     std::vector<sf::RectangleShape> cells(grid_width * grid_height);
 
     // initialize grid
@@ -27,7 +29,7 @@ int main()
         {
             sf::RectangleShape rect(sf::Vector2f(cell_width, cell_height));
             rect.setPosition(sf::Vector2f(x * cell_width, y * cell_height));
-            rect.setFillColor(rand() % 2 ? sf::Color::Blue : sf::Color::Red);
+            rect.setFillColor(random(2) ? sf::Color::Blue : sf::Color::Red);
             cells[grid_width * y + x] = rect;
         }
     }
@@ -44,6 +46,7 @@ int main()
         }
         
         window.clear();
+        texture.clear();
 
         // get random cell coordinates
         int rx = random(grid_width);
@@ -83,29 +86,25 @@ int main()
             rx = 0;
         }
 
-        if (rx <= 0) {
+        if (rx <= 0)
+        {
             rx = grid_width - 1;
         }
 
-        //std::cout << "x: " << rx << " y: " << ry << " index: " << grid_width * ry + rx << std::endl;
+        //neighbor.setFillColor(random(2) ? sf::Color::Blue : sf::Color::Red);
 
-        sf::RectangleShape neighbor = cells[grid_width * ry + rx];
-        neighbor.setFillColor(rand() % 2 ? sf::Color::Blue : sf::Color::Red);
-        window.draw(cell);
-        window.draw(neighbor);
-
-        /*if (rand() % 2 && neighbor.getFillColor() != cell.getFillColor()) 
+        if (random(2) && cells[grid_width * ry + rx].getFillColor() != cell.getFillColor())
         {
-            neighbor.setFillColor(cell.getFillColor());
+            cells[grid_width * ry + rx].setFillColor(cell.getFillColor());
         }
 
-        neighbor.setFillColor(rand() % 2 ? sf::Color::Blue : sf::Color::Red);*/
-
-        /*for (int i = 0; i < grid_height * grid_width; i++)
+        for (int i = 0; i < grid_height * grid_width; i++)
         {
-            window.draw(cells[i]);
-        }*/
+            texture.draw(cells[i]);
+        }
 
+        texture.display();
+        window.draw(sf::Sprite(texture.getTexture()));
         window.display();
     }
 
